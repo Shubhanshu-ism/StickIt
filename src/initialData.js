@@ -2,25 +2,25 @@
 const initialData = [
   {
     id: "list-1",
-    title: "Backlog",
+    title: "To Do",
     cards: [
       {
         id: "card-1",
-        title: "Setup Tailwind CSS v4",
-        description: "Install Vite plugin.",
-        dueDate: null,
+        title: "Complete HR Documentation",
+        description: "Fill out personal and bank details.",
+        dueDate: "2025-04-10",
       },
       {
         id: "card-2",
-        title: "Implement Board UI",
-        description: "Create List and Card components.",
-        dueDate: null,
+        title: "Setup Workstation",
+        description: "Install required tools and access internal systems.",
+        dueDate: "2025-04-11",
       },
       {
         id: "card-3",
-        title: "Add Drag and Drop",
-        description: "Use react-beautiful-dnd.",
-        dueDate: "2025-12-01",
+        title: "Meet the Team",
+        description: "Attend intro call with teammates and manager.",
+        dueDate: "2025-04-12",
       },
     ],
   },
@@ -30,28 +30,36 @@ const initialData = [
     cards: [
       {
         id: "card-4",
-        title: "Fix DnD Strict Mode Issue",
-        description: "Comment out StrictMode tags.",
-        dueDate: null,
+        title: "Access Company Wiki",
+        description: "Review company policies and culture guide.",
+        dueDate: "2025-04-13",
       },
     ],
   },
   {
     id: "list-3",
-    title: "Review",
-    cards: [],
-  },
-  {
-    id: "list-4",
-    title: "Done",
+    title: "Completed",
     cards: [
       {
         id: "card-5",
-        title: "Project Initialization",
-        description: "Setup Vite + React.",
-        dueDate: "2025-11-15",
+        title: "Signed Offer Letter",
+        description: "Completed before joining.",
+        dueDate: "2025-04-01",
+      },
+    ],
+  },
+  {
+    id: "list-4",
+    title: "Optional",
+    cards: [
+      {
+        id: "card-6",
+        title: "Join Interest Groups",
+        description: "Explore company clubs, communities, and forums.",
+        dueDate: null,
       },
     ],
   },
 ];
+
 export default initialData;

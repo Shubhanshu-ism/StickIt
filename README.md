@@ -1,33 +1,31 @@
 # Trello Clone - React & Tailwind CSS v4
 
-A functional, client-side Trello Clone application built with React, Vite, and Tailwind CSS v4.
+A clean and functional Trello clone built with **React**, **Vite**, and **Tailwind CSS v4** — featuring dynamic task management and intuitive drag-and-drop.
 
-## Project Goal
 
-The primary goal of this project is to create a functional, interactive Trello Clone application entirely on the client-side. It aims to demonstrate proficiency in using modern front-end technologies like React (with hooks), Vite, and Tailwind CSS v4, implementing core features such as dynamic list and card management, intuitive drag-and-drop interactions, and data persistence using browser `localStorage`.
 
-## Description
+---
 
-This project implements a feature-rich Trello Clone task management board. It provides a user experience similar to Trello, allowing users to visually organize tasks within customizable lists. Key functionalities include creating, editing, deleting, and rearranging both lists and task cards. The application state is persisted locally, ensuring that the board remains intact across browser sessions. This project serves as a practical demonstration of building interactive UIs with React, handling state management, implementing complex features like drag-and-drop, and utilizing modern build tooling and styling techniques.
+## 🚀 Features
 
-## Features
+- 📦 **List Management**
+  - Create, rename, delete lists
+  - Reorder lists via drag-and-drop
 
-* **Dynamic List Management:**
-    * Create new lists with custom titles.
-    * Delete lists (including all associated cards).
-    * Rename list titles inline.
-    * Reorder entire lists horizontally via drag-and-drop.
-* **Interactive Card Management:**
-    * Add new task cards to specific lists.
-    * Edit card details (title, description, due date) through a modal interface.
-    * Delete individual cards.
-    * Reorder cards within the same list via drag-and-drop.
-    * Move cards between different lists via drag-and-drop.
-* **Drag & Drop:** Smooth, intuitive drag-and-drop functionality for both cards and lists, powered by `react-beautiful-dnd`.
-* **Local Persistence:** The current state of the board (all lists and cards) is automatically saved to the browser's `localStorage`, ensuring data persistence across page reloads and browser sessions.
-* **Board Reset:** A dedicated button allows users to clear the entire board and reset it to its initial state.
-* **Trello-like UI:** Clean, responsive user interface styled with Tailwind CSS v4, designed to visually resemble the core Trello layout (columns for lists, cards within columns, modal for details).
-* **Modularity:** Codebase organized into reusable components, custom hooks (`useInlineForm`), and utility functions (`dndUtils`, `constants`) for better maintainability.
+- 📝 **Card Management**
+  - Add, edit (via modal), delete cards
+  - Drag cards within and across lists
+
+- 🎯 **Drag & Drop**
+  - Smooth UX powered by `@dnd-kit/core`
+
+- 💾 **LocalStorage Persistence**
+  - All changes saved automatically in the browser
+
+- 🧼 **Board Reset**
+  - One-click reset to clear all lists and cards
+
+---
 
 ## Tech Stack
 
@@ -76,10 +74,18 @@ This project implements a feature-rich Trello Clone task management board. It pr
 * `lint`: Lints the project files.
 * `preview`: Serves the production build locally.
 
-## Important Notes & Considerations
 
-* **React Strict Mode Workaround:** `React.StrictMode` is **disabled** (commented out) in `src/main.jsx`. This is a necessary workaround for `react-beautiful-dnd` v13 compatibility with React 18's development mode behavior. Drag-and-drop functionality will likely break if Strict Mode is re-enabled. For production environments requiring Strict Mode, consider migrating to a fully compatible DnD library like `@dnd-kit/core`.
-* **Tailwind CSS v4 Configuration:** The included `tailwind.config.js` is **simplified** to ensure the project builds correctly with the `@tailwindcss/vite` plugin. Custom theme extensions (e.g., specific `colors`, `boxShadow`) have been commented out. To add custom styling, you **must** consult the **official Tailwind CSS v4 documentation** for the correct configuration syntax and structure.
-* **Client-Side Only:** This application operates entirely within the browser. All data is stored in `localStorage`, meaning it's specific to that browser and can be lost if browser data is cleared. There is no backend server or database integration.
+## 📸 Preview
 
-## Folder Structure
+<div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+    <img src="public/preview.png" alt="preview" width="800"/>
+</div>
+
+
+## ⚙️ Getting Started
+
+### 1. Clone the Repo
+
+```bash
+git clone <your-repo-url>
+cd <your-folder>

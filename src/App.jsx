@@ -32,7 +32,7 @@ function App() {
   const resetBoard = () => {
     if (window.confirm("Reset the board? All data will be lost.")) {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
-      setLists([]); // Reset state to default data
+      setLists(initialData); // Reset state to default data
     }
   };
 

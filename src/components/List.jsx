@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import Card from "./Card";
 import AddCard from "./AddCard";
+// Using Heroicons as in previous refactored version
 import {
   EllipsisHorizontalIcon,
   TrashIcon,
@@ -24,36 +25,36 @@ function List({
   const [showListActions, setShowListActions] = useState(false);
   const listActionsRef = useRef(null);
 
-  // Effects for focusing input and handling outside clicks remain the same
-  useEffect(() => {
-    if (isEditingTitle && titleInputRef.current) titleInputRef.current.focus();
-  }, [isEditingTitle]);
+  // --- Effects ---
+  // Effect for list actions menu outside click
   useEffect(() => {
     function handleClickOutside(event) {
-      // Check if the click target is the ellipsis button itself
       if (
         listActionsRef.current?.contains(event.target) &&
         event.target.closest("button")?.dataset?.action === "toggle-list-menu"
-      ) {
-        return; // Don't close if clicking the toggle button
-      }
-      // Check if the click is outside the menu dropdown
+      )
+        return;
       if (
         listActionsRef.current &&
         !listActionsRef.current.contains(event.target)
-      ) {
+      )
         setShowListActions(false);
-      }
     }
-    if (showListActions) {
+    if (showListActions)
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+    else document.removeEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showListActions]);
 
-  // Internal handlers remain the same
+  // Effect to focus title input
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  // --- Handlers ---
   const handleAddCardInternal = (cardTitle) => {
     onAddCard(list.id, cardTitle);
     setIsAddingCard(false);
@@ -67,8 +68,10 @@ function List({
     setIsEditingTitle(false);
   };
   const handleTitleKeyDown = (e) => {
-    if (e.key === "Enter") handleTitleSave();
-    else if (e.key === "Escape") {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleTitleSave();
+    } else if (e.key === "Escape") {
       setListTitle(list.title);
       setIsEditingTitle(false);
     }
@@ -81,8 +84,8 @@ function List({
   return (
     <Draggable draggableId={list.id} index={index}>
       {(provided, snapshot) => (
-        // List container styling - Column layout, fixed width, Trello-like background
         <div
+          // Styling for the list container
           className={`bg-gray-200 rounded-lg shadow w-72 flex-shrink-0 flex flex-col max-h-full ${
             snapshot.isDragging ? "ring-2 ring-blue-500 ring-offset-2" : ""
           }`}
@@ -90,13 +93,12 @@ function List({
           {...provided.draggableProps}
           style={{ ...provided.draggableProps.style }}
         >
-          {/* List Header - Padding, flex, cursor for dragging */}
+          {/* List Header */}
           <div
             className="p-2 px-3 font-semibold text-gray-700 flex justify-between items-center border-b border-gray-300 cursor-grab"
-            {...provided.dragHandleProps}
+            {...provided.dragHandleProps} // Drag handle applied here
           >
             {isEditingTitle ? (
-              // Title input styling
               <input
                 ref={titleInputRef}
                 type="text"
@@ -107,7 +109,6 @@ function List({
                 onKeyDown={handleTitleKeyDown}
               />
             ) : (
-              // Title display styling
               <h3
                 className="text-sm font-medium flex-grow mr-2 cursor-pointer px-1 py-0.5 hover:bg-gray-300 rounded"
                 onClick={() => setIsEditingTitle(true)}
@@ -142,27 +143,29 @@ function List({
             </div>
           </div>
 
-          {/* Cards Container - Handles vertical scrolling */}
+          {/* Cards Container */}
           <Droppable droppableId={list.id} type="card">
             {(provided, snapshot) => (
               <div
-                // Padding, overflow for scroll, min-height, drop zone highlight
                 className={`px-2 pt-2 pb-1 overflow-y-auto flex-grow min-h-[60px] ${
                   snapshot.isDraggingOver ? "bg-gray-300/70" : ""
                 } transition-colors duration-150 ease-in-out`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {list.cards.map((card, cardIndex) => (
-                  <Card
-                    key={card.id}
-                    card={card}
-                    index={cardIndex}
-                    listId={list.id}
-                    onEdit={onEditCard}
-                    onDelete={onDeleteCard}
-                  />
-                ))}
+                {/* **** FIX: Check if list.cards is an array before mapping **** */}
+                {Array.isArray(list.cards) &&
+                  list.cards.map((card, cardIndex) => (
+                    <Card
+                      key={card.id} // Key for React list rendering
+                      card={card}
+                      index={cardIndex}
+                      listId={list.id}
+                      onEdit={onEditCard}
+                      onDelete={onDeleteCard}
+                    />
+                  ))}
+                {/* *********************************************************** */}
                 {provided.placeholder}
               </div>
             )}
@@ -180,8 +183,7 @@ function List({
                 className="w-full text-left text-gray-500 hover:bg-gray-300/80 rounded p-2 text-sm flex items-center transition-colors hover:text-gray-700"
                 onClick={() => setIsAddingCard(true)}
               >
-                <PlusIcon className="h-4 w-4 mr-1.5" />
-                Add a card
+                <PlusIcon className="h-4 w-4 mr-1.5" /> Add a card
               </button>
             )}
           </div>

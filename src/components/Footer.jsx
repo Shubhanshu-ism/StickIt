@@ -2,7 +2,7 @@ import React from "react";
 import { MdOutlineEmail } from "react-icons/md";
 import { CiLinkedin } from "react-icons/ci";
 import { FaGithub } from "react-icons/fa";
-
+import { IoPerson } from "react-icons/io5";
 function Footer() {
   return (
     <footer className="bg-gray-100 p-2 flex-shrink-0 text-center text-xs text-gray-400 border-t">
@@ -38,6 +38,18 @@ function Footer() {
           >
             <FaGithub size={18} />
             GitHub
+          </span>
+          <span
+            className="flex items-center gap-1 cursor-pointer"
+            onClick={() =>
+              window.open(
+                "https://shubhanshu-portfolio-one.vercel.app/",
+                "_blank"
+              )
+            }
+          >
+            <IoPerson size={18} />
+            Protfolio
           </span>
         </div>
       </div>
