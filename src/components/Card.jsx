@@ -8,19 +8,26 @@ function Card({ card, index, listId, onEdit, onDelete }) {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleEditCard = (updatedCard) => {
-    onEdit(listId, card.id, updatedCard);
+  // These handlers now just pass data up to the Board
+  const handleEditCard = (updatedCardData) => {
+    // No need to include listId/cardId here, CardModal passes the full updated card object
+    onEdit(listId, card.id, updatedCardData);
+    // Modal closure is handled within CardModal or after state update in Board
   };
 
   const handleDeleteCard = () => {
+    // Deletion is handled via the modal's delete button now
+    // This function is just passed to the modal
     onDelete(listId, card.id);
-    closeModal();
+    // No need to close modal here, Board state update will unmount it
   };
 
   const formattedDueDate = card.dueDate
     ? new Date(card.dueDate).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
+        // Optional: Add year or time if needed
+        // year: 'numeric',
       })
     : null;
 
@@ -32,24 +39,28 @@ function Card({ card, index, listId, onEdit, onDelete }) {
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`bg-white rounded-xl shadow-sm p-4 mb-3 border border-gray-200 hover:bg-gray-50 cursor-pointer transition duration-150 ${
-              snapshot.isDragging ? "opacity-70 shadow-md" : ""
+            // Use classes defined in index.css
+            className={`trello-card ${
+              snapshot.isDragging ? "trello-card-dragging" : ""
             }`}
-            onClick={openModal}
+            onClick={openModal} // Open modal on click
+            style={{
+              // Required styles from react-beautiful-dnd
+              ...provided.draggableProps.style,
+            }}
           >
-            <div className="font-semibold text-gray-800 text-base">
-              {card.title}
-            </div>
+            {/* Use classes defined in index.css */}
+            <div className="trello-card-title">{card.title}</div>
 
             {card.description && (
-              <div className="mt-2 text-sm text-gray-600 line-clamp-2">
-                {card.description}
-              </div>
+              <div className="trello-card-description">{card.description}</div>
             )}
 
             {formattedDueDate && (
-              <div className="flex mt-3 items-center text-sm text-gray-500">
-                <span className="inline-flex items-center px-2 py-1 rounded bg-gray-100">
+              <div className="trello-card-due-date">
+                <span>
+                  {" "}
+                  {/* Wrap in span for styling */}
                   📅 {formattedDueDate}
                 </span>
               </div>
@@ -58,12 +69,13 @@ function Card({ card, index, listId, onEdit, onDelete }) {
         )}
       </Draggable>
 
+      {/* Render Modal Conditionally */}
       {isModalOpen && (
         <CardModal
           card={card}
           onClose={closeModal}
-          onEdit={handleEditCard}
-          onDelete={handleDeleteCard}
+          onEdit={handleEditCard} // Pass the handler
+          onDelete={handleDeleteCard} // Pass the handler
         />
       )}
     </>

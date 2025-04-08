@@ -1,24 +1,31 @@
 import React, { useState, useEffect, useRef } from "react";
 
 function CardModal({ card, onClose, onEdit, onDelete }) {
+  // Initialize state directly from card prop
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || "");
-  const [dueDate, setDueDate] = useState(card.dueDate || "");
+  // Ensure dueDate is in 'YYYY-MM-DD' format for the input type="date"
+  const [dueDate, setDueDate] = useState(
+    card.dueDate ? new Date(card.dueDate).toISOString().split("T")[0] : ""
+  );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const modalRef = useRef(null);
   const titleInputRef = useRef(null);
+  const descriptionInputRef = useRef(null); // Ref for description
 
+  // Close modal on Escape key press
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
         onClose();
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  // Focus title input when editing starts
   useEffect(() => {
     if (isEditingTitle && titleInputRef.current) {
       titleInputRef.current.focus();
@@ -26,106 +33,138 @@ function CardModal({ card, onClose, onEdit, onDelete }) {
     }
   }, [isEditingTitle]);
 
+  // *** Consolidated Save Logic ***
   const handleSaveChanges = () => {
+    const trimmedTitle = title.trim();
+    // Only proceed if title is not empty
+    if (!trimmedTitle) {
+      alert("Card title cannot be empty."); // Or handle more gracefully
+      titleInputRef.current?.focus();
+      return;
+    }
     onEdit({
-      title: title.trim() ? title : card.title,
-      description,
-      dueDate: dueDate || null,
+      // Pass the updated fields using the current state
+      ...card, // Keep existing card properties like id
+      title: trimmedTitle,
+      description: description.trim(), // Trim description too
+      dueDate: dueDate || null, // Set to null if empty string
     });
-    onClose();
+    onClose(); // Close modal after saving
   };
 
+  // Title Edit Handling (Inline within Modal)
   const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleDescriptionChange = (e) => setDescription(e.target.value);
-  const handleDueDateChange = (e) => setDueDate(e.target.value);
 
-  const handleTitleSave = () => {
-    if (title.trim()) {
-      onEdit({ ...card, title });
-    } else {
+  const handleTitleBlur = () => {
+    const trimmedTitle = title.trim();
+    if (trimmedTitle && trimmedTitle !== card.title) {
+      // Optionally save title immediately on blur, or wait for main Save button
+      // For simplicity, we'll let the main "Save" button handle the final save.
+      // You could call `onEdit({ ...card, title: trimmedTitle })` here if desired.
+      setTitle(trimmedTitle); // Ensure state reflects trimmed title
+    } else if (!trimmedTitle) {
+      // Revert if title is cleared
       setTitle(card.title);
     }
     setIsEditingTitle(false);
   };
 
   const handleTitleKeyDown = (e) => {
-    if (e.key === "Enter") handleTitleSave();
-    else if (e.key === "Escape") {
-      setTitle(card.title);
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission if any
+      handleTitleBlur(); // Treat Enter like Blur for saving the title edit
+    } else if (e.key === "Escape") {
+      setTitle(card.title); // Revert
       setIsEditingTitle(false);
     }
   };
 
+  const handleDescriptionChange = (e) => setDescription(e.target.value);
+  const handleDueDateChange = (e) => setDueDate(e.target.value);
+
+  const handleDeleteClick = () => {
+    if (window.confirm("Are you sure you want to delete this card?")) {
+      onDelete(); // Call onDelete passed from parent (Board -> List -> Card)
+      // onClose(); // Deleting will close modal via parent state update anyway
+    }
+  };
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-      <div
-        ref={modalRef}
-        className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto"
-      >
-        <div className="flex justify-between items-start mb-6">
+    <div className="modal-backdrop">
+      {" "}
+      {/* Use defined class */}
+      <div ref={modalRef} className="modal-content">
+        {" "}
+        {/* Use defined class */}
+        {/* Close Button */}
+        <button onClick={onClose} className="modal-close-button" title="Close">
+          ×
+        </button>
+        {/* Card Title Section */}
+        <div className="mb-6 pr-8">
+          {" "}
+          {/* Add padding-right to avoid overlap with close button */}
+          <label className="block text-sm font-medium text-gray-400 mb-1">
+            ✏️ Title
+          </label>
           {isEditingTitle ? (
             <input
               ref={titleInputRef}
               type="text"
-              className="text-xl font-semibold w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="text-xl font-semibold w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-trello-blue"
               value={title}
               onChange={handleTitleChange}
-              onBlur={handleTitleSave}
+              onBlur={handleTitleBlur}
               onKeyDown={handleTitleKeyDown}
             />
           ) : (
             <h2
-              className="text-xl font-semibold cursor-pointer hover:bg-gray-100 p-2 rounded"
+              className="text-xl font-semibold cursor-pointer hover:bg-gray-100 p-2 rounded -ml-2" // Make clickable area larger
               onClick={() => setIsEditingTitle(true)}
+              title="Click to edit title"
             >
-              {title}
+              {title} {/* Display current title state */}
             </h2>
           )}
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl"
-            title="Close"
-          >
-            ×
-          </button>
         </div>
-
+        {/* Due Date Section */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             📅 Due Date
           </label>
           <input
             type="date"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-trello-blue text-sm"
             value={dueDate}
             onChange={handleDueDateChange}
           />
         </div>
-
+        {/* Description Section */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             📝 Description
           </label>
           <textarea
-            className="w-full p-2 border border-gray-300 rounded min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+            ref={descriptionInputRef}
+            className="w-full p-2 border border-gray-300 rounded min-h-[100px] resize-y focus:outline-none focus:ring-2 focus:ring-trello-blue text-sm" // Allow vertical resize
             placeholder="Add a more detailed description..."
             value={description}
             onChange={handleDescriptionChange}
           ></textarea>
         </div>
-
-        <div className="flex justify-between">
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center">
           <button
-            onClick={handleSaveChanges}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+            onClick={handleSaveChanges} // Use the consolidated save handler
+            className="bg-trello-blue hover:bg-trello-blue-light text-white px-5 py-2 rounded-lg transition text-sm font-medium"
           >
-            💾 Save
+            💾 Save Changes
           </button>
           <button
-            onClick={onDelete}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+            onClick={handleDeleteClick} // Use the confirmation delete handler
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition text-sm font-medium"
           >
-            🗑️ Delete
+            🗑️ Delete Card
           </button>
         </div>
       </div>

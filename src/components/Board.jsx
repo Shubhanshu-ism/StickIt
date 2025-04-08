@@ -2,13 +2,37 @@ import React, { useState } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import List from "./List";
 import AddList from "./AddList";
+import { FaPlus } from "react-icons/fa"; // Import icon
+
+// Helper function for reordering within the same list
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  return result;
+};
+
+// Helper function for moving items between lists
+const move = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const [removed] = sourceClone.splice(droppableSource.index, 1);
+  destClone.splice(droppableDestination.index, 0, removed);
+
+  const result = {};
+  result[droppableSource.droppableId] = sourceClone;
+  result[droppableDestination.droppableId] = destClone;
+
+  return result;
+};
 
 function Board({ lists, setLists }) {
   const [isAddingList, setIsAddingList] = useState(false);
 
+  // --- List Management ---
   const handleAddList = (title) => {
     const newList = {
-      id: `list-${Date.now()}`,
+      id: `list-${Date.now()}`, // Unique ID
       title,
       cards: [],
     };
@@ -17,6 +41,7 @@ function Board({ lists, setLists }) {
   };
 
   const handleDeleteList = (listId) => {
+    // Confirmation is handled in List.jsx
     setLists(lists.filter((list) => list.id !== listId));
   };
 
@@ -28,29 +53,33 @@ function Board({ lists, setLists }) {
     );
   };
 
+  // --- Card Management ---
   const handleAddCard = (listId, cardTitle) => {
     const newCard = {
-      id: `card-${Date.now()}`,
+      id: `card-${Date.now()}`, // Unique ID
       title: cardTitle,
       description: "",
       dueDate: null,
     };
-
     setLists(
       lists.map((list) =>
-        list.id === listId ? { ...list, cards: [...list.cards, newCard] } : list
+        list.id === listId
+          ? { ...list, cards: [...list.cards, newCard] } // Add to end
+          : list
       )
     );
   };
 
-  const handleEditCard = (listId, cardId, updatedCard) => {
+  // Updated handleEditCard to accept the full updated card object
+  const handleEditCard = (listId, cardId, updatedCardData) => {
     setLists(
       lists.map((list) =>
         list.id === listId
           ? {
               ...list,
+              // Map through cards, replace the one with matching ID
               cards: list.cards.map((card) =>
-                card.id === cardId ? { ...card, ...updatedCard } : card
+                card.id === cardId ? { ...card, ...updatedCardData } : card
               ),
             }
           : list
@@ -59,6 +88,7 @@ function Board({ lists, setLists }) {
   };
 
   const handleDeleteCard = (listId, cardId) => {
+    // Confirmation is handled in CardModal.jsx
     setLists(
       lists.map((list) =>
         list.id === listId
@@ -71,113 +101,123 @@ function Board({ lists, setLists }) {
     );
   };
 
+  // --- Drag and Drop Logic ---
   const onDragEnd = (result) => {
-    const { destination, source, draggableId, type } = result;
+    const { source, destination, type } = result;
 
-    if (
-      !destination ||
-      (destination.droppableId === source.droppableId &&
-        destination.index === source.index)
-    ) {
+    // Dropped outside the list
+    if (!destination) {
       return;
     }
 
+    // --- Reordering Lists ---
     if (type === "list") {
-      handleListDragEnd(source, destination, lists, setLists);
+      if (source.index === destination.index) {
+        return; // No change
+      }
+      const reorderedLists = reorder(lists, source.index, destination.index);
+      setLists(reorderedLists);
       return;
     }
 
-    handleCardDragEnd(source, destination, lists, setLists);
-  };
-
-  const handleListDragEnd = (source, destination, lists, setLists) => {
-    const newLists = Array.from(lists);
-    const [removed] = newLists.splice(source.index, 1);
-    newLists.splice(destination.index, 0, removed);
-    setLists(newLists);
-  };
-
-  const handleCardDragEnd = (source, destination, lists, setLists) => {
-    const sourceList = lists.find((list) => list.id === source.droppableId);
-    const destList = lists.find((list) => list.id === destination.droppableId);
-
-    if (sourceList.id === destList.id) {
-      const newCards = Array.from(sourceList.cards);
-      const [removed] = newCards.splice(source.index, 1);
-      newCards.splice(destination.index, 0, removed);
-
-      const newLists = lists.map((list) =>
-        list.id === sourceList.id ? { ...list, cards: newCards } : list
+    // --- Reordering/Moving Cards ---
+    if (type === "card") {
+      const sourceList = lists.find((list) => list.id === source.droppableId);
+      const destList = lists.find(
+        (list) => list.id === destination.droppableId
       );
 
-      setLists(newLists);
-    } else {
-      const sourceCards = Array.from(sourceList.cards);
-      const [removed] = sourceCards.splice(source.index, 1);
-      const destCards = Array.from(destList.cards);
-      destCards.splice(destination.index, 0, removed);
+      if (!sourceList || !destList) {
+        console.error("Source or destination list not found!");
+        return;
+      }
 
-      const newLists = lists.map((list) => {
-        if (list.id === sourceList.id) {
-          return { ...list, cards: sourceCards };
+      // Reordering within the same list
+      if (source.droppableId === destination.droppableId) {
+        if (source.index === destination.index) {
+          return; // No change
         }
-        if (list.id === destList.id) {
-          return { ...list, cards: destCards };
-        }
-        return list;
-      });
-
-      setLists(newLists);
+        const reorderedCards = reorder(
+          sourceList.cards,
+          source.index,
+          destination.index
+        );
+        const newLists = lists.map((list) =>
+          list.id === sourceList.id ? { ...list, cards: reorderedCards } : list
+        );
+        setLists(newLists);
+      }
+      // Moving card to a different list
+      else {
+        const movedResult = move(
+          sourceList.cards,
+          destList.cards,
+          source,
+          destination
+        );
+        const newLists = lists.map((list) => {
+          if (list.id === source.droppableId) {
+            return { ...list, cards: movedResult[source.droppableId] };
+          }
+          if (list.id === destination.droppableId) {
+            return { ...list, cards: movedResult[destination.droppableId] };
+          }
+          return list;
+        });
+        setLists(newLists);
+      }
     }
   };
 
   return (
-    <div className="p-4 h-full overflow-x-auto">
-      {/* Horizontal scroll */}
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="all-lists" direction="horizontal" type="list">
-          {(provided) => (
-            <div
-              className="board-lists"
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {lists.map((list, index) => (
-                <List
-                  key={list.id}
-                  list={list}
-                  index={index}
-                  onAddCard={handleAddCard}
-                  onEditCard={handleEditCard}
-                  onDeleteCard={handleDeleteCard}
-                  onDeleteList={handleDeleteList}
-                  onRenameList={handleRenameList}
-                />
-              ))}
-              {provided.placeholder}
-
+    // Outer container for padding and background is now in App.jsx/index.css
+    // Board itself handles the DragDropContext and list rendering
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="board" direction="horizontal" type="list">
+        {(provided) => (
+          <div
+            className="board-lists" // Use class from index.css for layout
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+          >
+            {/* Render Existing Lists */}
+            {lists.map((list, index) => (
+              <List
+                key={list.id}
+                list={list}
+                index={index} // Pass index for Draggable
+                onAddCard={handleAddCard}
+                onEditCard={handleEditCard}
+                onDeleteCard={handleDeleteCard}
+                onDeleteList={handleDeleteList}
+                onRenameList={handleRenameList}
+              />
+            ))}
+            {provided.placeholder} {/* Placeholder for dragging lists */}
+            {/* Add New List Area */}
+            <div className="flex-shrink-0">
+              {" "}
+              {/* Prevent AddList form/button from stretching */}
               {isAddingList ? (
-                <div className="trello-list">
-                  <AddList
-                    onAdd={handleAddList}
-                    onCancel={() => setIsAddingList(false)}
-                  />
-                </div>
+                // Render AddList component when adding
+                <AddList
+                  onAdd={handleAddList}
+                  onCancel={() => setIsAddingList(false)}
+                />
               ) : (
-                <div
-                  className="bg-trello-gray-300 bg-opacity-80 hover:bg-opacity-100 rounded-md shadow-sm flex-shrink-0 w-72 mx-2 p-2 h-12 flex items-center justify-center cursor-pointer"
+                // Render "Add another list" button
+                <button
+                  className="bg-white bg-opacity-30 hover:bg-opacity-50 transition-opacity text-white font-medium rounded-lg shadow-sm w-72 h-10 flex items-center justify-start px-4" // Styling for the add list button
                   onClick={() => setIsAddingList(true)}
                 >
-                  <span className="text-gray-600 font-medium">
-                    + Add another list
-                  </span>
-                </div>
+                  <FaPlus className="mr-2" /> Add another list
+                </button>
               )}
             </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-    </div>
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 }
 
