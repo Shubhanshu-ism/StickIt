@@ -9,7 +9,7 @@ function Header({ resetBoard, deleteBoard }) {
         <div className="flex items-center gap-2">
           <FaTrello className="text-2xl text-blue-600" />
           <h1 className="text-lg font-semibold text-gray-800 hidden sm:block">
-            Trello Clone
+            StickIt
           </h1>
         </div>
 
