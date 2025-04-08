@@ -30,9 +30,15 @@ function App() {
 
   // Reset board function
   const resetBoard = () => {
-    if (window.confirm("Reset the board? All data will be lost.")) {
+    if (window.confirm("Reset the board? All data will be set to initial.")) {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
       setLists(initialData); // Reset state to default data
+    }
+  };
+  const deleteBoard = () => {
+    if (window.confirm("Delete the board? All data will be Deleted.")) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      setLists([]); // Delete state to Clear data
     }
   };
 
@@ -41,12 +47,12 @@ function App() {
     <div className="flex flex-col h-screen bg-gray-100 overflow-hidden">
       {" "}
       {/* Use default gray */}
-      <Header resetBoard={resetBoard} />
+      <Header resetBoard={resetBoard} deleteBoard={deleteBoard} />
       {/* Board container takes remaining height, handles its own scrolling */}
       <div className="flex-grow overflow-y-hidden">
         <Board lists={lists} setLists={setLists} />
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

@@ -1,27 +1,38 @@
 import React from "react";
-import { FaTrello } from "react-icons/fa"; // Using Trello icon as example logo
+import { FaTrello } from "react-icons/fa"; // Trello logo
 
-function Header({ resetBoard }) {
+function Header({ resetBoard, deleteBoard }) {
   return (
-    <header className="bg-white/80 backdrop-blur-sm shadow-sm p-3 flex-shrink-0 z-10 border-b border-gray-200">
-      {" "}
-      {/* Slight transparency + blur */}
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <FaTrello className="text-xl text-blue-600" /> {/* Standard blue */}
-          <h1 className="text-base font-bold text-gray-700 hidden sm:block">
+    <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200 p-3 sticky top-0 z-10">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        {/* Logo + Title */}
+        <div className="flex items-center gap-2">
+          <FaTrello className="text-2xl text-blue-600" />
+          <h1 className="text-lg font-semibold text-gray-800 hidden sm:block">
             Trello Clone
           </h1>
         </div>
-        <button
-          onClick={resetBoard}
-          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
-          title="Reset Board"
-        >
-          Reset
-        </button>
+
+        {/* Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={resetBoard}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1.5 rounded text-sm font-medium transition-all"
+            title="Reset Board"
+          >
+            Reset
+          </button>
+          <button
+            onClick={deleteBoard}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded text-sm font-medium transition-all"
+            title="Delete Board"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </header>
   );
 }
+
 export default Header;
