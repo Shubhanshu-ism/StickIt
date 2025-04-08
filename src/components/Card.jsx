@@ -1,85 +1,77 @@
 import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import CardModal from "./CardModal";
+import {
+  CalendarIcon,
+  ChatBubbleLeftEllipsisIcon,
+} from "@heroicons/react/20/solid";
 
 function Card({ card, index, listId, onEdit, onDelete }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
-  // These handlers now just pass data up to the Board
   const handleEditCard = (updatedCardData) => {
-    // No need to include listId/cardId here, CardModal passes the full updated card object
     onEdit(listId, card.id, updatedCardData);
-    // Modal closure is handled within CardModal or after state update in Board
   };
-
   const handleDeleteCard = () => {
-    // Deletion is handled via the modal's delete button now
-    // This function is just passed to the modal
     onDelete(listId, card.id);
-    // No need to close modal here, Board state update will unmount it
+    closeModal();
   };
 
   const formattedDueDate = card.dueDate
-    ? new Date(card.dueDate).toLocaleDateString("en-US", {
+    ? new Date(card.dueDate + "T00:00:00").toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
-        // Optional: Add year or time if needed
-        // year: 'numeric',
       })
     : null;
+  const hasDescription = card.description && card.description.trim().length > 0;
 
   return (
     <>
       <Draggable draggableId={card.id} index={index}>
         {(provided, snapshot) => (
+          // Apply card styles directly
           <div
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            // Use classes defined in index.css
-            className={`trello-card ${
-              snapshot.isDragging ? "trello-card-dragging" : ""
+            className={`bg-white rounded-md shadow-card p-2.5 mb-2 cursor-pointer hover:shadow-md hover:border-gray-300 border border-transparent transition-all duration-150 flex flex-col ${
+              snapshot.isDragging ? "ring-2 ring-blue-500 shadow-lg" : ""
             }`}
-            onClick={openModal} // Open modal on click
-            style={{
-              // Required styles from react-beautiful-dnd
-              ...provided.draggableProps.style,
-            }}
+            onClick={openModal}
+            style={{ ...provided.draggableProps.style }}
           >
-            {/* Use classes defined in index.css */}
-            <div className="trello-card-title">{card.title}</div>
-
-            {card.description && (
-              <div className="trello-card-description">{card.description}</div>
-            )}
-
-            {formattedDueDate && (
-              <div className="trello-card-due-date">
-                <span>
-                  {" "}
-                  {/* Wrap in span for styling */}
-                  📅 {formattedDueDate}
-                </span>
-              </div>
-            )}
+            <div className="text-sm font-medium text-gray-900 mb-1">
+              {card.title}
+            </div>
+            <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-xs text-gray-600">
+              {formattedDueDate && (
+                <div className="flex items-center bg-gray-100 px-1.5 py-0.5 rounded">
+                  <CalendarIcon className="h-3.5 w-3.5 mr-1 text-gray-500" />
+                  <span>{formattedDueDate}</span>
+                </div>
+              )}
+              {hasDescription && (
+                <div
+                  className="flex items-center px-1 py-0.5 rounded"
+                  title="This card has a description"
+                >
+                  <ChatBubbleLeftEllipsisIcon className="h-3.5 w-3.5 text-gray-500" />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </Draggable>
-
-      {/* Render Modal Conditionally */}
       {isModalOpen && (
         <CardModal
           card={card}
           onClose={closeModal}
-          onEdit={handleEditCard} // Pass the handler
-          onDelete={handleDeleteCard} // Pass the handler
+          onEdit={handleEditCard}
+          onDelete={handleDeleteCard}
         />
       )}
     </>
   );
 }
-
 export default Card;

@@ -2,49 +2,38 @@ import React, { useState } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import List from "./List";
 import AddList from "./AddList";
-import { FaPlus } from "react-icons/fa"; // Import icon
+import { PlusIcon } from "@heroicons/react/20/solid";
 
-// Helper function for reordering within the same list
+// Helper functions (reorder, move) remain the same
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
   return result;
 };
-
-// Helper function for moving items between lists
 const move = (source, destination, droppableSource, droppableDestination) => {
   const sourceClone = Array.from(source);
   const destClone = Array.from(destination);
   const [removed] = sourceClone.splice(droppableSource.index, 1);
   destClone.splice(droppableDestination.index, 0, removed);
-
   const result = {};
   result[droppableSource.droppableId] = sourceClone;
   result[droppableDestination.droppableId] = destClone;
-
   return result;
 };
 
 function Board({ lists, setLists }) {
   const [isAddingList, setIsAddingList] = useState(false);
 
-  // --- List Management ---
+  // List Management handlers (handleAddList, handleDeleteList, handleRenameList) remain the same
   const handleAddList = (title) => {
-    const newList = {
-      id: `list-${Date.now()}`, // Unique ID
-      title,
-      cards: [],
-    };
+    const newList = { id: `list-${Date.now()}`, title, cards: [] };
     setLists([...lists, newList]);
     setIsAddingList(false);
   };
-
   const handleDeleteList = (listId) => {
-    // Confirmation is handled in List.jsx
     setLists(lists.filter((list) => list.id !== listId));
   };
-
   const handleRenameList = (listId, newTitle) => {
     setLists(
       lists.map((list) =>
@@ -53,31 +42,26 @@ function Board({ lists, setLists }) {
     );
   };
 
-  // --- Card Management ---
+  // Card Management handlers (handleAddCard, handleEditCard, handleDeleteCard) remain the same
   const handleAddCard = (listId, cardTitle) => {
     const newCard = {
-      id: `card-${Date.now()}`, // Unique ID
+      id: `card-${Date.now()}`,
       title: cardTitle,
       description: "",
       dueDate: null,
     };
     setLists(
       lists.map((list) =>
-        list.id === listId
-          ? { ...list, cards: [...list.cards, newCard] } // Add to end
-          : list
+        list.id === listId ? { ...list, cards: [...list.cards, newCard] } : list
       )
     );
   };
-
-  // Updated handleEditCard to accept the full updated card object
   const handleEditCard = (listId, cardId, updatedCardData) => {
     setLists(
       lists.map((list) =>
         list.id === listId
           ? {
               ...list,
-              // Map through cards, replace the one with matching ID
               cards: list.cards.map((card) =>
                 card.id === cardId ? { ...card, ...updatedCardData } : card
               ),
@@ -86,57 +70,34 @@ function Board({ lists, setLists }) {
       )
     );
   };
-
   const handleDeleteCard = (listId, cardId) => {
-    // Confirmation is handled in CardModal.jsx
     setLists(
       lists.map((list) =>
         list.id === listId
-          ? {
-              ...list,
-              cards: list.cards.filter((card) => card.id !== cardId),
-            }
+          ? { ...list, cards: list.cards.filter((card) => card.id !== cardId) }
           : list
       )
     );
   };
 
-  // --- Drag and Drop Logic ---
+  // Drag and Drop Logic (onDragEnd) remains the same
   const onDragEnd = (result) => {
     const { source, destination, type } = result;
-
-    // Dropped outside the list
-    if (!destination) {
-      return;
-    }
-
-    // --- Reordering Lists ---
+    if (!destination) return;
     if (type === "list") {
-      if (source.index === destination.index) {
-        return; // No change
-      }
+      if (source.index === destination.index) return;
       const reorderedLists = reorder(lists, source.index, destination.index);
       setLists(reorderedLists);
       return;
     }
-
-    // --- Reordering/Moving Cards ---
     if (type === "card") {
       const sourceList = lists.find((list) => list.id === source.droppableId);
       const destList = lists.find(
         (list) => list.id === destination.droppableId
       );
-
-      if (!sourceList || !destList) {
-        console.error("Source or destination list not found!");
-        return;
-      }
-
-      // Reordering within the same list
+      if (!sourceList || !destList) return;
       if (source.droppableId === destination.droppableId) {
-        if (source.index === destination.index) {
-          return; // No change
-        }
+        if (source.index === destination.index) return;
         const reorderedCards = reorder(
           sourceList.cards,
           source.index,
@@ -146,9 +107,7 @@ function Board({ lists, setLists }) {
           list.id === sourceList.id ? { ...list, cards: reorderedCards } : list
         );
         setLists(newLists);
-      }
-      // Moving card to a different list
-      else {
+      } else {
         const movedResult = move(
           sourceList.cards,
           destList.cards,
@@ -156,12 +115,10 @@ function Board({ lists, setLists }) {
           destination
         );
         const newLists = lists.map((list) => {
-          if (list.id === source.droppableId) {
+          if (list.id === source.droppableId)
             return { ...list, cards: movedResult[source.droppableId] };
-          }
-          if (list.id === destination.droppableId) {
+          if (list.id === destination.droppableId)
             return { ...list, cards: movedResult[destination.droppableId] };
-          }
           return list;
         });
         setLists(newLists);
@@ -170,54 +127,55 @@ function Board({ lists, setLists }) {
   };
 
   return (
-    // Outer container for padding and background is now in App.jsx/index.css
-    // Board itself handles the DragDropContext and list rendering
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="board" direction="horizontal" type="list">
-        {(provided) => (
-          <div
-            className="board-lists" // Use class from index.css for layout
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-          >
-            {/* Render Existing Lists */}
-            {lists.map((list, index) => (
-              <List
-                key={list.id}
-                list={list}
-                index={index} // Pass index for Draggable
-                onAddCard={handleAddCard}
-                onEditCard={handleEditCard}
-                onDeleteCard={handleDeleteCard}
-                onDeleteList={handleDeleteList}
-                onRenameList={handleRenameList}
-              />
-            ))}
-            {provided.placeholder} {/* Placeholder for dragging lists */}
-            {/* Add New List Area */}
-            <div className="flex-shrink-0">
-              {" "}
-              {/* Prevent AddList form/button from stretching */}
-              {isAddingList ? (
-                // Render AddList component when adding
-                <AddList
-                  onAdd={handleAddList}
-                  onCancel={() => setIsAddingList(false)}
+    // Container for horizontal scrolling
+    <div className="overflow-x-auto overflow-y-hidden h-full w-full p-4">
+      {" "}
+      {/* Added padding here */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="board" direction="horizontal" type="list">
+          {(provided) => (
+            // Apply flex layout and spacing directly for the lists container
+            <div
+              className="flex items-start space-x-4 h-full" // Use space-x for gap, items-start
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {/* Render Lists */}
+              {lists.map((list, index) => (
+                <List
+                  key={list.id}
+                  list={list}
+                  index={index}
+                  onAddCard={handleAddCard}
+                  onEditCard={handleEditCard}
+                  onDeleteCard={handleDeleteCard}
+                  onDeleteList={handleDeleteList}
+                  onRenameList={handleRenameList}
                 />
-              ) : (
-                // Render "Add another list" button
-                <button
-                  className="bg-white bg-opacity-30 hover:bg-opacity-50 transition-opacity text-white font-medium rounded-lg shadow-sm w-72 h-10 flex items-center justify-start px-4" // Styling for the add list button
-                  onClick={() => setIsAddingList(true)}
-                >
-                  <FaPlus className="mr-2" /> Add another list
-                </button>
-              )}
+              ))}
+              {provided.placeholder}
+              {/* Add New List Button/Form */}
+              <div className="flex-shrink-0 w-72 self-start">
+                {isAddingList ? (
+                  <AddList
+                    onAdd={handleAddList}
+                    onCancel={() => setIsAddingList(false)}
+                  />
+                ) : (
+                  <button
+                    // Apply styles directly for the add list button
+                    className="bg-white/50 hover:bg-white/75 transition-opacity text-gray-600 font-medium rounded-md shadow-sm w-full h-10 flex items-center justify-start px-3"
+                    onClick={() => setIsAddingList(true)}
+                  >
+                    <PlusIcon className="mr-2 h-5 w-5" /> Add another list
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </div>
   );
 }
 

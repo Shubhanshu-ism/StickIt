@@ -1,69 +1,69 @@
 import React, { useState, useRef, useEffect } from "react";
+import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 
 function AddCard({ onAdd, onCancel }) {
   const [title, setTitle] = useState("");
   const textareaRef = useRef(null);
-
+  const formRef = useRef(null);
   useEffect(() => {
-    textareaRef.current?.focus(); // Optional chaining for safety
+    textareaRef.current?.focus();
   }, []);
-
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (formRef.current && !formRef.current.contains(e.target)) onCancel();
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onCancel]);
   const handleSubmit = (e) => {
     e.preventDefault();
-    const trimmedTitle = title.trim();
-    if (trimmedTitle) {
-      onAdd(trimmedTitle);
-      setTitle(""); // Clear after adding
-      // Optionally keep focus or blur textareaRef.current?.blur();
+    const t = title.trim();
+    if (t) {
+      onAdd(t);
+      setTitle("");
+      textareaRef.current?.focus();
     } else {
-      textareaRef.current?.focus(); // Keep focus if empty
+      textareaRef.current?.focus();
     }
   };
-
-  const handleChange = (e) => {
-    setTitle(e.target.value);
-  };
-
+  const handleChange = (e) => setTitle(e.target.value);
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
-    } else if (e.key === "Escape") {
-      onCancel();
-    }
+    } else if (e.key === "Escape") onCancel();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-2 px-1">
-      {" "}
-      {/* Added padding */}
-      <textarea
-        ref={textareaRef}
-        placeholder="Enter a title for this card..."
-        className="w-full p-2 border border-gray-300 rounded-md mb-2 resize-none shadow-sm focus:outline-none focus:ring-2 focus:ring-trello-blue text-sm" // Adjusted styling
-        value={title}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        rows={3}
-      />
-      <div className="flex items-center">
-        <button
-          type="submit"
-          className="bg-trello-blue hover:bg-trello-blue-light text-white px-4 py-1.5 rounded-md mr-2 text-sm font-medium" // Adjusted styling
-        >
-          Add Card
-        </button>
-        <button
-          type="button"
-          className="text-gray-500 hover:text-gray-700 text-2xl leading-none" // Made bigger
-          onClick={onCancel}
-          title="Cancel"
-        >
-          ×
-        </button>
-      </div>
-    </form>
+    <div ref={formRef} className="bg-white rounded-md p-1">
+      <form onSubmit={handleSubmit}>
+        <textarea
+          ref={textareaRef}
+          placeholder="Enter a title for this card..."
+          className="w-full p-2 border-none rounded-md mb-1 resize-none text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+          value={title}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          rows={3}
+        />
+        <div className="flex items-center justify-start mt-1">
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-semibold shadow-sm flex items-center"
+          >
+            <PlusIcon className="h-4 w-4 mr-1" /> Add Card
+          </button>
+          <button
+            type="button"
+            className="ml-2 text-gray-500 hover:text-gray-700 p-1"
+            onClick={onCancel}
+            title="Cancel"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
-
 export default AddCard;

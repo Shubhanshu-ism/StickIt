@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import Card from "./Card";
 import AddCard from "./AddCard";
-import { FaEllipsisH, FaTrashAlt, FaPlus } from "react-icons/fa"; // Import icons
+import {
+  EllipsisHorizontalIcon,
+  TrashIcon,
+  PlusIcon,
+} from "@heroicons/react/20/solid";
 
 function List({
   list,
@@ -17,140 +21,127 @@ function List({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [listTitle, setListTitle] = useState(list.title);
   const titleInputRef = useRef(null);
-  const [showListActions, setShowListActions] = useState(false); // State for list actions menu
-  const listActionsRef = useRef(null); // Ref for actions menu
+  const [showListActions, setShowListActions] = useState(false);
+  const listActionsRef = useRef(null);
 
-  // Focus input when editing title
+  // Effects for focusing input and handling outside clicks remain the same
   useEffect(() => {
-    if (isEditingTitle && titleInputRef.current) {
-      titleInputRef.current.focus();
-      titleInputRef.current.select();
-    }
+    if (isEditingTitle && titleInputRef.current) titleInputRef.current.focus();
   }, [isEditingTitle]);
-
-  // Close list actions menu if clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (
+        listActionsRef.current?.contains(event.target) &&
+        event.target.closest("button")?.dataset?.action === "toggle-list-menu"
+      )
+        return;
+      if (
         listActionsRef.current &&
         !listActionsRef.current.contains(event.target)
-      ) {
+      )
         setShowListActions(false);
-      }
     }
-    if (showListActions) {
+    if (showListActions)
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+    else document.removeEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showListActions]);
 
+  // Internal handlers remain the same
   const handleAddCardInternal = (cardTitle) => {
     onAddCard(list.id, cardTitle);
     setIsAddingCard(false);
   };
-
-  const handleTitleChange = (e) => {
-    setListTitle(e.target.value);
-  };
-
+  const handleTitleChange = (e) => setListTitle(e.target.value);
   const handleTitleSave = () => {
     const trimmedTitle = listTitle.trim();
-    if (trimmedTitle && trimmedTitle !== list.title) {
+    if (trimmedTitle && trimmedTitle !== list.title)
       onRenameList(list.id, trimmedTitle);
-    } else {
-      setListTitle(list.title); // Reset to original if empty or unchanged
-    }
+    else setListTitle(list.title);
     setIsEditingTitle(false);
   };
-
   const handleTitleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleTitleSave();
-    } else if (e.key === "Escape") {
-      setListTitle(list.title); // Reset to original
+    if (e.key === "Enter") handleTitleSave();
+    else if (e.key === "Escape") {
+      setListTitle(list.title);
       setIsEditingTitle(false);
     }
   };
-
   const handleDeleteListClick = () => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the list "${list.title}" and all its cards?`
-      )
-    ) {
-      onDeleteList(list.id);
-    }
-    setShowListActions(false); // Close menu after action
+    if (window.confirm(`Delete list "${list.title}"?`)) onDeleteList(list.id);
+    setShowListActions(false);
   };
 
   return (
     <Draggable draggableId={list.id} index={index}>
       {(provided, snapshot) => (
+        // Apply list container styles directly
         <div
-          className={`trello-list ${snapshot.isDragging ? "shadow-lg" : ""}`} // Use defined class
+          className={`bg-trello-gray rounded-lg shadow-list w-72 flex-shrink-0 flex flex-col max-h-full ${
+            snapshot.isDragging ? "shadow-lg ring-2 ring-blue-300" : ""
+          }`}
           ref={provided.innerRef}
           {...provided.draggableProps}
-          style={{ ...provided.draggableProps.style }} // Apply dnd styles
+          style={{ ...provided.draggableProps.style }}
         >
-          {/* List Header */}
-          <div className="trello-list-header" {...provided.dragHandleProps}>
-            {" "}
-            {/* Drag handle on header */}
+          {/* List Header - Apply styles directly */}
+          <div
+            className="p-2 px-3 font-semibold text-trello-gray-text flex justify-between items-center cursor-grab"
+            {...provided.dragHandleProps}
+          >
             {isEditingTitle ? (
+              // Apply title input styles directly
               <input
                 ref={titleInputRef}
                 type="text"
-                className="list-title-input" // Use defined class
+                className="font-semibold text-trello-gray-text border border-blue-500 rounded px-2 py-1 w-full focus:outline-none bg-white shadow-inner flex-grow mr-2"
                 value={listTitle}
                 onChange={handleTitleChange}
                 onBlur={handleTitleSave}
                 onKeyDown={handleTitleKeyDown}
               />
             ) : (
+              // Apply title display styles directly
               <h3
-                className="trello-list-title cursor-pointer px-1 py-0.5 hover:bg-trello-gray-300 rounded" // Make title clickable
+                className="text-sm font-medium flex-grow mr-2 cursor-pointer px-1 py-0.5 hover:bg-trello-gray-300 rounded"
                 onClick={() => setIsEditingTitle(true)}
                 title="Click to edit list title"
               >
-                {list.title} {/* Display original title until saved */}
+                {list.title}
               </h3>
             )}
-            {/* List Actions Button */}
+            {/* List Actions Button & Menu Container */}
             <div className="relative flex-shrink-0" ref={listActionsRef}>
               <button
-                className="text-gray-500 hover:bg-trello-gray-300 hover:text-gray-700 p-1.5 rounded"
+                className="text-gray-500 hover:bg-trello-gray-300 hover:text-gray-700 p-1 rounded"
                 onClick={() => setShowListActions(!showListActions)}
                 title="List actions"
+                data-action="toggle-list-menu"
               >
-                <FaEllipsisH />
+                <EllipsisHorizontalIcon className="h-5 w-5" />
               </button>
-              {/* Actions Menu */}
               {showListActions && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-20 py-1">
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-xl border border-gray-200 z-20 py-1">
+                  <p className="text-xs text-gray-500 text-center py-1 border-b mb-1">
+                    List Actions
+                  </p>
                   <button
                     onClick={handleDeleteListClick}
-                    className="block w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+                    className="block w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 flex items-center"
                   >
-                    <FaTrashAlt className="inline mr-2" /> Delete List
+                    <TrashIcon className="h-4 w-4 mr-2" /> Delete This List
                   </button>
-                  {/* Add other list actions here (e.g., Copy List) */}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Cards Container - Droppable */}
+          {/* Cards Container - Apply styles directly */}
           <Droppable droppableId={list.id} type="card">
             {(provided, snapshot) => (
               <div
-                className={`list-cards-container ${
-                  // Use defined class
-                  snapshot.isDraggingOver
-                    ? "bg-trello-gray-300 bg-opacity-50"
-                    : "" // Highlight drop zone
+                className={`px-2 pb-1 overflow-y-auto flex-grow min-h-[40px] ${
+                  snapshot.isDraggingOver ? "bg-trello-gray-300/50" : ""
                 } transition-colors duration-150 ease-in-out`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
@@ -165,15 +156,13 @@ function List({
                     onDelete={onDeleteCard}
                   />
                 ))}
-                {provided.placeholder} {/* Placeholder for dragging */}
+                {provided.placeholder}
               </div>
             )}
           </Droppable>
 
           {/* Add Card Area */}
-          <div className="mt-auto pt-2 flex-shrink-0">
-            {" "}
-            {/* Push to bottom */}
+          <div className="mt-auto px-2 pt-1 pb-2 flex-shrink-0">
             {isAddingCard ? (
               <AddCard
                 onAdd={handleAddCardInternal}
@@ -184,8 +173,7 @@ function List({
                 className="w-full text-left text-gray-600 hover:bg-trello-gray-300 rounded p-2 text-sm flex items-center transition-colors"
                 onClick={() => setIsAddingCard(true)}
               >
-                <FaPlus className="h-4 w-4 mr-2" />
-                Add a card
+                <PlusIcon className="h-4 w-4 mr-2" /> Add a card
               </button>
             )}
           </div>
@@ -194,5 +182,4 @@ function List({
     </Draggable>
   );
 }
-
 export default List;

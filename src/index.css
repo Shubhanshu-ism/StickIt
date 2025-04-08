@@ -1,109 +1,34 @@
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-@import "tailwindcss";
+/* src/index.css */
+@import "tailwindcss"; /* Import Tailwind v4 styles */
+
+/* Global styles or base overrides can go here */
 body {
-  @apply bg-trello-gray-100 min-h-screen text-gray-800;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    /* @apply bg-trello-blue-lightest font-sans antialiased; /* Comment out or remove */
+    @apply bg-gray-100 font-sans antialiased; /* Use a default color temporarily */
 }
 
-.board-container {
-  /* Apply the custom gradient */
-  @apply bg-gradient-board;
-  /* Ensure it takes necessary height */
-  min-height: calc(100vh - 8rem); /* Adjust based on Header/Footer height */
-  height: 100%; /* Fill the available space in main */
-  width: 100%;
-}
+/*
+   NOTE: Custom component classes previously defined with @apply
+   have been moved directly into the JSX className props below.
+*/
 
-.board-lists {
-  @apply flex overflow-x-auto pb-4 pt-4 px-4 space-x-3; /* Add space between lists */
-  /* Calculate height based on viewport minus header/footer */
-  height: 100%; /* Fill the board-container height */
-  align-items: flex-start; /* Align lists to the top */
-}
-
-.trello-list {
-  @apply bg-trello-gray-200 rounded-lg shadow-md flex-shrink-0 w-72 p-2 flex flex-col;
-  /* Allow lists to grow vertically but not exceed board height */
-  max-height: calc(100% - 1rem); /* Adjust padding */
-}
-
-.trello-list-header {
-  @apply flex justify-between items-center mb-2 px-2 py-1 flex-shrink-0; /* Added padding and shrink */
-}
-
-.trello-list-title {
-  @apply font-semibold text-sm text-gray-700 flex-grow mr-2; /* Allow title to take space */
-}
-
-/* Style for when editing list title */
-.list-title-input {
-   @apply font-semibold text-sm bg-white rounded px-2 py-1 w-full border border-blue-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-trello-blue;
-}
-
-
-.list-cards-container {
-    @apply flex-grow overflow-y-auto overflow-x-hidden px-1; /* Allow vertical scroll within list */
-    /* Add some min-height if needed, but flex-grow should handle it */
-    min-height: 40px;
-}
-
-
-/* Card specific styles (moved from Card.jsx for better organization) */
-.trello-card {
-   @apply bg-white rounded-md shadow-sm p-3 mb-2 border border-gray-200 hover:bg-gray-50 cursor-pointer transition duration-150 break-words;
-}
-
-.trello-card-dragging {
-    @apply opacity-70 shadow-lg rotate-3; /* Example dragging style */
-}
-
-.trello-card-title {
-    @apply font-medium text-sm text-gray-800;
-}
-
-.trello-card-description {
-    @apply mt-2 text-xs text-gray-600 line-clamp-2; /* Using line-clamp plugin */
-}
-
-.trello-card-due-date {
-     @apply flex mt-2 items-center text-xs text-gray-500;
-}
-
-.trello-card-due-date span {
-    @apply inline-flex items-center px-2 py-0.5 rounded bg-gray-100 font-medium;
-}
-
-
-/* Scrollbar styling */
+/* Optional: Keep scrollbar styling if desired, as it's standard CSS */
 ::-webkit-scrollbar {
-  width: 10px; /* Slightly wider scrollbar */
+  width: 8px;
   height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  @apply bg-trello-gray-300 bg-opacity-50 rounded-md; /* Slightly visible track */
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
-  @apply bg-trello-gray-400 rounded-md border-2 border-transparent bg-clip-content;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  background: rgba(0, 0, 0, 0.4);
 }
-
-/* Modal backdrop */
-.modal-backdrop {
-  @apply fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4; /* Added padding */
-}
-
-/* Modal content */
-.modal-content {
-   @apply bg-white rounded-lg shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto relative; /* Ensure relative for close button positioning */
-}
-
-.modal-close-button {
-    @apply absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer;
+* { /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.05);
 }
