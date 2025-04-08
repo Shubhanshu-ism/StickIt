@@ -30,20 +30,26 @@ function List({
   }, [isEditingTitle]);
   useEffect(() => {
     function handleClickOutside(event) {
+      // Check if the click target is the ellipsis button itself
       if (
         listActionsRef.current?.contains(event.target) &&
         event.target.closest("button")?.dataset?.action === "toggle-list-menu"
-      )
-        return;
+      ) {
+        return; // Don't close if clicking the toggle button
+      }
+      // Check if the click is outside the menu dropdown
       if (
         listActionsRef.current &&
         !listActionsRef.current.contains(event.target)
-      )
+      ) {
         setShowListActions(false);
+      }
     }
-    if (showListActions)
+    if (showListActions) {
       document.addEventListener("mousedown", handleClickOutside);
-    else document.removeEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showListActions]);
 
@@ -75,45 +81,45 @@ function List({
   return (
     <Draggable draggableId={list.id} index={index}>
       {(provided, snapshot) => (
-        // Apply list container styles directly
+        // List container styling - Column layout, fixed width, Trello-like background
         <div
-          className={`bg-trello-gray rounded-lg shadow-list w-72 flex-shrink-0 flex flex-col max-h-full ${
-            snapshot.isDragging ? "shadow-lg ring-2 ring-blue-300" : ""
+          className={`bg-gray-200 rounded-lg shadow w-72 flex-shrink-0 flex flex-col max-h-full ${
+            snapshot.isDragging ? "ring-2 ring-blue-500 ring-offset-2" : ""
           }`}
           ref={provided.innerRef}
           {...provided.draggableProps}
           style={{ ...provided.draggableProps.style }}
         >
-          {/* List Header - Apply styles directly */}
+          {/* List Header - Padding, flex, cursor for dragging */}
           <div
-            className="p-2 px-3 font-semibold text-trello-gray-text flex justify-between items-center cursor-grab"
+            className="p-2 px-3 font-semibold text-gray-700 flex justify-between items-center border-b border-gray-300 cursor-grab"
             {...provided.dragHandleProps}
           >
             {isEditingTitle ? (
-              // Apply title input styles directly
+              // Title input styling
               <input
                 ref={titleInputRef}
                 type="text"
-                className="font-semibold text-trello-gray-text border border-blue-500 rounded px-2 py-1 w-full focus:outline-none bg-white shadow-inner flex-grow mr-2"
+                className="font-semibold text-gray-700 border border-blue-500 rounded px-1.5 py-0.5 w-full focus:outline-none bg-white shadow-inner flex-grow mr-2 text-sm"
                 value={listTitle}
                 onChange={handleTitleChange}
                 onBlur={handleTitleSave}
                 onKeyDown={handleTitleKeyDown}
               />
             ) : (
-              // Apply title display styles directly
+              // Title display styling
               <h3
-                className="text-sm font-medium flex-grow mr-2 cursor-pointer px-1 py-0.5 hover:bg-trello-gray-300 rounded"
+                className="text-sm font-medium flex-grow mr-2 cursor-pointer px-1 py-0.5 hover:bg-gray-300 rounded"
                 onClick={() => setIsEditingTitle(true)}
                 title="Click to edit list title"
               >
                 {list.title}
               </h3>
             )}
-            {/* List Actions Button & Menu Container */}
+            {/* List Actions Menu */}
             <div className="relative flex-shrink-0" ref={listActionsRef}>
               <button
-                className="text-gray-500 hover:bg-trello-gray-300 hover:text-gray-700 p-1 rounded"
+                className="text-gray-500 hover:bg-gray-300 hover:text-gray-800 p-1 rounded"
                 onClick={() => setShowListActions(!showListActions)}
                 title="List actions"
                 data-action="toggle-list-menu"
@@ -122,7 +128,7 @@ function List({
               </button>
               {showListActions && (
                 <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-xl border border-gray-200 z-20 py-1">
-                  <p className="text-xs text-gray-500 text-center py-1 border-b mb-1">
+                  <p className="text-xs text-gray-500 text-center font-normal py-1 border-b mb-1">
                     List Actions
                   </p>
                   <button
@@ -136,12 +142,13 @@ function List({
             </div>
           </div>
 
-          {/* Cards Container - Apply styles directly */}
+          {/* Cards Container - Handles vertical scrolling */}
           <Droppable droppableId={list.id} type="card">
             {(provided, snapshot) => (
               <div
-                className={`px-2 pb-1 overflow-y-auto flex-grow min-h-[40px] ${
-                  snapshot.isDraggingOver ? "bg-trello-gray-300/50" : ""
+                // Padding, overflow for scroll, min-height, drop zone highlight
+                className={`px-2 pt-2 pb-1 overflow-y-auto flex-grow min-h-[60px] ${
+                  snapshot.isDraggingOver ? "bg-gray-300/70" : ""
                 } transition-colors duration-150 ease-in-out`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
@@ -170,10 +177,11 @@ function List({
               />
             ) : (
               <button
-                className="w-full text-left text-gray-600 hover:bg-trello-gray-300 rounded p-2 text-sm flex items-center transition-colors"
+                className="w-full text-left text-gray-500 hover:bg-gray-300/80 rounded p-2 text-sm flex items-center transition-colors hover:text-gray-700"
                 onClick={() => setIsAddingCard(true)}
               >
-                <PlusIcon className="h-4 w-4 mr-2" /> Add a card
+                <PlusIcon className="h-4 w-4 mr-1.5" />
+                Add a card
               </button>
             )}
           </div>

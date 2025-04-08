@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Board from "./components/Board";
-// import Footer from './components/Footer'; // Uncomment if using Footer
 import initialData from "./initialData";
-import "./index.css"; // Import main CSS
+import "./index.css";
+import Footer from "./components/Footer";
 
-const LOCAL_STORAGE_KEY = "trelloBoardLists-v4"; // Use a unique key
+const LOCAL_STORAGE_KEY = "trelloBoardLists-v4-final"; // Use a unique key
 
 function App() {
   const [lists, setLists] = useState(() => {
     const savedLists = localStorage.getItem(LOCAL_STORAGE_KEY);
     try {
+      // Start with initialData if nothing is saved or if parsing fails
       return savedLists ? JSON.parse(savedLists) : initialData;
     } catch (e) {
       console.error("Failed to parse lists from localStorage:", e);
-      return initialData;
+      return initialData; // Fallback on error
     }
   });
 
+  // Save to localStorage whenever lists change
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(lists));
@@ -26,21 +28,25 @@ function App() {
     }
   }, [lists]);
 
+  // Reset board function
   const resetBoard = () => {
-    if (window.confirm("Are you sure you want to reset the entire board?")) {
+    if (window.confirm("Reset the board? All data will be lost.")) {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
-      setLists(initialData); // Reset state (or use [] for truly empty)
+      setLists([]); // Reset state to default data
     }
   };
 
   return (
-    <div className="flex flex-col h-screen bg-trello-blue-lightest overflow-hidden">
+    // Main layout: Full height, flex column
+    <div className="flex flex-col h-screen bg-gray-100 overflow-hidden">
+      {" "}
+      {/* Use default gray */}
       <Header resetBoard={resetBoard} />
-      {/* flex-grow allows board to take remaining space, overflow-y-hidden prevents App scroll */}
+      {/* Board container takes remaining height, handles its own scrolling */}
       <div className="flex-grow overflow-y-hidden">
         <Board lists={lists} setLists={setLists} />
       </div>
-      {/* <Footer /> */}
+      <Footer/>
     </div>
   );
 }

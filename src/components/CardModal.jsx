@@ -84,36 +84,35 @@ function CardModal({ card, onClose, onEdit, onDelete }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4"
+      className="fixed inset-0 bg-black/60 z-50 flex justify-center items-start pt-16 md:pt-24 px-4"
       onClick={onClose}
     >
+      {/* Modal content: Trello-like width, background, shadow */}
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative flex space-x-6"
+        className="bg-gray-100 rounded-lg shadow-xl w-full max-w-3xl p-5 md:p-6 relative flex flex-col md:flex-row md:space-x-6"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 z-10"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-1"
           title="Close (Esc)"
         >
-          <XMarkIcon className="h-6 w-6" />
+          <XMarkIcon className="h-5 w-5" />
         </button>
-        {/* Main Content */}
-        <div className="flex-grow">
-          {/* Title */}
+
+        {/* Main Content Column */}
+        <div className="flex-grow mb-6 md:mb-0">
+          {/* Card Title */}
           <div className="mb-5 flex items-start space-x-3">
-            <PencilIcon className="h-5 w-5 text-gray-400 mt-1.5 flex-shrink-0" />
+            <PencilIcon className="h-5 w-5 text-gray-500 mt-1 flex-shrink-0" />
             <div className="flex-grow">
-              <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">
-                {" "}
-                Title{" "}
-              </label>
               {isEditingTitle ? (
                 <input
                   ref={titleInputRef}
                   type="text"
-                  className="text-lg font-semibold w-full p-1 -ml-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="text-lg font-semibold w-full p-1 -ml-1 border border-blue-500 rounded focus:outline-none bg-white shadow-inner"
                   value={title}
                   onChange={handleTitleChange}
                   onBlur={handleFinishEditTitle}
@@ -121,7 +120,7 @@ function CardModal({ card, onClose, onEdit, onDelete }) {
                 />
               ) : (
                 <h2
-                  className="text-lg font-semibold cursor-pointer hover:bg-gray-100 p-1 -ml-1 rounded"
+                  className="text-lg font-semibold cursor-pointer hover:bg-gray-200 p-1 -ml-1 rounded w-full break-words"
                   onClick={handleStartEditTitle}
                   title="Click to edit title"
                 >
@@ -132,18 +131,18 @@ function CardModal({ card, onClose, onEdit, onDelete }) {
           </div>
           {/* Description */}
           <div className="mb-6 flex items-start space-x-3">
-            <Bars3Icon className="h-5 w-5 text-gray-400 mt-1.5 flex-shrink-0" />
+            <Bars3Icon className="h-5 w-5 text-gray-500 mt-1.5 flex-shrink-0" />
             <div className="flex-grow">
               <label
                 htmlFor="card-description"
-                className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide"
+                className="text-sm font-semibold text-gray-700 mb-1 block"
               >
                 {" "}
                 Description{" "}
               </label>
               <textarea
                 id="card-description"
-                className="w-full p-2 border border-gray-300 rounded min-h-[100px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
+                className="w-full p-2 border-gray-300 border rounded min-h-[100px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm bg-white focus:bg-white hover:bg-gray-50"
                 placeholder="Add a more detailed description..."
                 value={description}
                 onChange={handleDescriptionChange}
@@ -151,48 +150,43 @@ function CardModal({ card, onClose, onEdit, onDelete }) {
             </div>
           </div>
         </div>
-        {/* Sidebar */}
-        <div className="w-48 flex-shrink-0 space-y-4">
+
+        {/* Sidebar Column */}
+        <div className="w-full md:w-48 flex-shrink-0 space-y-4">
           {/* Due Date */}
           <div>
             <label
               htmlFor="card-due-date"
-              className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide flex items-center"
+              className="text-xs font-semibold text-gray-600 mb-1 uppercase flex items-center"
             >
-              <CalendarIcon className="h-4 w-4 mr-1 text-gray-400" /> Due Date
+              <CalendarIcon className="h-4 w-4 mr-1" /> Due Date
             </label>
             <input
               id="card-due-date"
               type="date"
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
+              className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm bg-white"
               value={dueDate}
               onChange={handleDueDateChange}
             />
           </div>
           {/* Actions */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">
               {" "}
               Actions{" "}
             </label>
             <div className="space-y-2">
               <button
                 onClick={handleSaveChanges}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-semibold shadow-sm transition duration-150 flex items-center justify-center"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-medium shadow-sm transition duration-150 flex items-center justify-center"
               >
-                <CheckIcon className="h-4 w-4 mr-1" /> Save Changes
+                <CheckIcon className="h-4 w-4 mr-1" /> Save
               </button>
               <button
                 onClick={handleDeleteClick}
-                className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold shadow-sm transition duration-150 flex items-center justify-center"
+                className="w-full bg-gray-300 hover:bg-red-500 hover:text-white text-gray-700 px-3 py-1.5 rounded text-sm font-medium transition duration-150 flex items-center justify-center"
               >
-                <TrashIcon className="h-4 w-4 mr-1" /> Delete Card
-              </button>
-              <button
-                onClick={onClose}
-                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150 flex items-center justify-center"
-              >
-                Cancel
+                <TrashIcon className="h-4 w-4 mr-1" /> Delete
               </button>
             </div>
           </div>

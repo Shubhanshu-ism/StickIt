@@ -129,18 +129,16 @@ function Board({ lists, setLists }) {
   return (
     // Container for horizontal scrolling
     <div className="overflow-x-auto overflow-y-hidden h-full w-full p-4">
-      {" "}
-      {/* Added padding here */}
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="board" direction="horizontal" type="list">
           {(provided) => (
-            // Apply flex layout and spacing directly for the lists container
+            // Flex container for lists + AddList button
             <div
-              className="flex items-start space-x-4 h-full" // Use space-x for gap, items-start
+              className="flex items-start space-x-4 h-full" // Horizontal layout, align tops
               ref={provided.innerRef}
               {...provided.droppableProps}
             >
-              {/* Render Lists */}
+              {/* Render Existing Lists */}
               {lists.map((list, index) => (
                 <List
                   key={list.id}
@@ -154,7 +152,7 @@ function Board({ lists, setLists }) {
                 />
               ))}
               {provided.placeholder}
-              {/* Add New List Button/Form */}
+              {/* Add New List Component/Button */}
               <div className="flex-shrink-0 w-72 self-start">
                 {isAddingList ? (
                   <AddList
@@ -163,11 +161,12 @@ function Board({ lists, setLists }) {
                   />
                 ) : (
                   <button
-                    // Apply styles directly for the add list button
-                    className="bg-white/50 hover:bg-white/75 transition-opacity text-gray-600 font-medium rounded-md shadow-sm w-full h-10 flex items-center justify-start px-3"
+                    // Styling for the "Add another list" button
+                    className="bg-white/60 hover:bg-white/80 text-black/80 transition-colors font-medium rounded-md shadow-sm w-full h-10 flex items-center justify-start px-4 text-sm"
                     onClick={() => setIsAddingList(true)}
                   >
-                    <PlusIcon className="mr-2 h-5 w-5" /> Add another list
+                    <PlusIcon className="mr-1.5 h-5 w-5 text-gray-600" /> Add
+                    another list
                   </button>
                 )}
               </div>

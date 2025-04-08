@@ -1,34 +1,14 @@
-/* src/index.css */
 @import "tailwindcss"; /* Import Tailwind v4 styles */
 
-/* Global styles or base overrides can go here */
+
 body {
-    /* @apply bg-trello-blue-lightest font-sans antialiased; /* Comment out or remove */
-    @apply bg-gray-100 font-sans antialiased; /* Use a default color temporarily */
+    /* Using default gray as custom colors need correct v4 config */
+    @apply bg-gray-100 font-sans antialiased;
 }
 
-/*
-   NOTE: Custom component classes previously defined with @apply
-   have been moved directly into the JSX className props below.
-*/
-
-/* Optional: Keep scrollbar styling if desired, as it's standard CSS */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4);
-}
-* { /* For Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.05);
-}
+/* Optional: Scrollbar styling */
+::-webkit-scrollbar { width: 8px; height: 10px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.3); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.4); }
+* { scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.05); }
