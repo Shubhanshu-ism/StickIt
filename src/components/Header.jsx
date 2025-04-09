@@ -15,19 +15,20 @@ function Header({ resetBoard, deleteBoard }) {
 
         {/* Buttons */}
         <div className="flex gap-2">
-          <button
+          {/* <button
             onClick={resetBoard}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1.5 rounded text-sm font-medium transition-all"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-all"
             title="Reset Board"
           >
             Reset
-          </button>
+          </button> */}
           <button
             onClick={deleteBoard}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded text-sm font-medium transition-all"
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-all"
             title="Delete Board"
           >
-            Delete
+            Reset
+            {/* Delete */}
           </button>
         </div>
       </div>
