@@ -46,5 +46,5 @@ A clean and functional web app built with **React**, **Vite**, and **Tailwind CS
 <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
     <img src="public/preview.png" alt="preview" width="800"/>
     ---
-    <img src="public/preview2.png" alt="preview" width="800"/>
+    <img src="public/preview1.png" alt="preview" width="800"/>
 </div>
